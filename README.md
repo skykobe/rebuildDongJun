@@ -13,6 +13,7 @@ first：
 npm install -g fis3
 ```
 这个构建工具挺好用的。
+
 then:
 ```
 npm run build   或者   fis3 release -d [保存构建的项目的目录]
