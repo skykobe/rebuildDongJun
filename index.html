@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <!--重构完成后，把改标签去掉-->
+    <script src="/node_modules/mockjs/dist/mock.js"></script>
+    <script src="mock_interface.js"></script>
+    <script src="/js/lib/jquery.js"></script>
+  </head>
+  <body>
+    <script type="text/javascript">
+      $.ajax({
+          url: 'http://127.0.0.1:8080/test',
+          /*注意，mock的话，是拦截了ajax请求的，所以，当我们模拟接口数据时
+            你既可以先写好ajax的get，post及传参什么的（不过你在控制台看不到对应的请求
+            就是了），等重构完，在接上后台系统看看是否出现问题。也可以像这样写得十分
+            简洁，不过到时候要回来补写method和data。
+          */
+          success: function(data) {
+            console.log(data);
+          }
+      })
+    </script>
+  </body>
+</html>

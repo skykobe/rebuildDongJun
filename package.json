@@ -1,0 +1,16 @@
+{
+  "name": "rebuilddongjun",
+  "version": "1.0.1",
+  "description": "rebuild this project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "fis3 release -d ../dist"
+  },
+  "author": "ricardo",
+  "license": "MIT",
+  "dependencies": {
+    "mockjs": "^1.0.1-beta3"
+  },
+  "devDependencies": {}
+}
