@@ -5,7 +5,7 @@ var dj = {
       try {
         fn = ( fn ? fn : '' );
         obj[fn]()
-      } catch (err) {
+      } catch (err) { 
         console.log('没有对应的路由哦')
       }
       window.onhashchange = function() {
@@ -23,13 +23,25 @@ var dj = {
       }
     }
   },
+  explainScript: function(node) {
+    var script = document.createElement('script');
+    var t = document.createTextNode(node.getElementsByTagName('script')[0].text);
+    script.appendChild(t)
+    node.appendChild(script)
+    node.removeChild(node.getElementsByTagName('script')[0])
+  },
   inserCmp: function(url, node, fn) {
+    var that = this
     if(fetch) {
       fetch(url).then(function(res) {
         return res.text() // 把返回的数据转化为字符串数据
       }).then(function(data) {
         try {
           node.innerHTML = data
+          //that.componentIn()
+          if(node.getElementsByTagName('script').length != 0) {
+            that.explainScript(node) // 把组件中script标签的内容进行渲染解析，
+          }
         } catch(err) {
           throw new Error("请传元素节点")
         }
@@ -45,6 +57,51 @@ var dj = {
       fn()
     }
   },
+  _cmp: [],
+  createComponent: function(tagName, o) {
+    var check = this._cmp.filter(function(item) {
+      return item.tag == tagName
+    })
+    if(check.length != 0) return 0
+    var co = {}
+    co.tag = tagName
+    co.template = o.template ? o.template : null // template的优先级最高，如果只有templateUrl则会把其内容转化为template保存下来，
+    co.templateUrl = o.templateUrl ? o.templateUrl : null // 避免之后再次使用该组件时，再一次进行请求
+    if(co.templateUrl && co.template) {
+      console.error('请填入template或templateUrl');
+    }
+    this._cmp.push(co)
+  },
+  componentIn: function() { // 自定义的组件标签进行渲染
+    var that = this
+    this._cmp.forEach(function(data, index) {
+      var tag = document.body.getElementsByTagName(data.tag)
+      var len = tag.length
+      if(len == 0) return 0
+      if(data.template) {
+        for(var i = 0 ; i < len; i++) {
+          tag[0].outerHTML = data.template // getElementsByTagName返回的是动态的htmlcollection
+        }
+      } else {
+        that.loadHtml(data.templateUrl, function(data) {
+          that._cmp[index].template = data // 把组件的内容缓存起来，下次运用时不需要再次请求文件
+          for(var i = 0 ; i < len; i++) {
+            if(i == 0) {
+              var parent = tag[0].parentNode
+              var div = document.createElement('div')  //虚拟一个dom节点，不进行真实的渲染，用它来获得script
+              div.innerHTML = data
+              var script = document.createElement('script');
+              var t = document.createTextNode(div.getElementsByTagName('script')[0].text);
+              script.appendChild(t)
+              parent.appendChild(script)
+              div = null
+            }
+            tag[0].outerHTML = data // getElementsByTagName返回的是动态的htmlcollection
+          }
+        })
+      }
+    })
+  },
   loadHtml: function(url, fn) {
     if(fetch) {
       fetch(url).then(function(res) {
@@ -58,7 +115,7 @@ var dj = {
       xhr.open("GET", url, true);
       xhr.onload = function(e) {
         var o = new Object()
-        fn.call(o, this.responseText)     
+        fn.call(o, this.responseText)
       }
       xhr.send()
     }
@@ -87,14 +144,22 @@ var dj = {
       }
     })
   },
+  _jsArray: [],
   jsLoad: function(url, fn) {
-    var script = document.createElement('script');
-    script.src = url;
-    script.addEventListener('load', function() {
-      if(fn) {
-        fn()
-      }
-    })
-    document.body.appendChild(script)
-  }  
+    if(_jsArray.indexOf(url)) {
+       // do nothing
+       fn()
+    } else {
+      _jsArray.push(url)
+      var script = document.createElement('script');
+      script.src = url;
+      script.addEventListener('load', function() {
+        if(fn) {
+          fn()
+        }
+      })
+      document.body.appendChild(script)
+    }
+
+  }
 }

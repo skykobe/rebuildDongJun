@@ -1,0 +1,14 @@
+<h1 onclick="test.test()">templateUrl</h1>
+<h2 onclick="test.one()">pppp</h2>
+<script>
+  var test = {
+    test: function (e) { // 这种获取不了event对象，所以有必要用到event对象的话
+      e = e || window.event // 这这样，或者直接window.event
+      console.log(e);
+      alert('4566')
+    },
+    one: function() {
+      alert('one')
+    }
+  }
+</script>
